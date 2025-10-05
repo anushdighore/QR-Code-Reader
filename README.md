@@ -1,184 +1,427 @@
-# Java QR Code Studio
+<div align="center">
 
-A desktop (Swing) and command-line toolkit that uses the ZXing library to generate and read QR codes.
+# 🎯 QR Code Studio
 
-## Features
+### Modern Desktop Application for QR Code Generation & Reading
 
-- ✅ Point-and-click desktop app (Swing) for QR generation and decoding
-- ✅ Custom PNG output size and save location
-- ✅ Instant decoding of existing QR images with status feedback
-- ✅ Command-line utilities remain available for automation and scripting
+[![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
+[![ZXing](https://img.shields.io/badge/ZXing-3.5.3-blue?style=for-the-badge)](https://github.com/zxing/zxing)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Mac-lightgrey?style=for-the-badge)]()
 
-## Requirements
+**A powerful, user-friendly desktop application built with Java Swing for generating and decoding QR codes with live preview and modern UI.**
 
-- Java 8 or higher
-- ZXing (Zebra Crossing) library
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Screenshots](#-screenshots) • [Development](#-development)
 
-## Setup Instructions
+---
 
-### Step 1: Download ZXing Library
+</div>
 
-You need to download the following JAR files from ZXing:
+## ✨ Features
 
-1. **core-3.5.3.jar** - Core ZXing library
-2. **javase-3.5.3.jar** - Java SE extensions
+### 🎨 Modern GUI Experience
 
-**Option A: Direct Download Links**
+- **Live QR Preview** - See generated QR codes instantly in a 240x240px preview pane
+- **Nimbus Look & Feel** - Professional cross-platform UI design
+- **Split-Panel Layout** - Form on the left, preview on the right for optimal workflow
+- **One-Click Actions** - Open generated images, copy decoded text to clipboard
+- **Smart Validation** - Real-time feedback with character counts and helpful error messages
 
-- Go to: https://repo1.maven.org/maven2/com/google/zxing/
-- Download:
-  - `core/3.5.3/core-3.5.3.jar`
-  - `javase/3.5.3/javase-3.5.3.jar`
+### 🚀 Generation Capabilities
 
-**Option B: Maven Repository**
+- ✅ Generate QR codes from any text or URL
+- ✅ Customizable size (100-1000 pixels)
+- ✅ PNG output with custom file names
+- ✅ Instant visual preview after generation
+- ✅ Open image directly in default viewer
 
-- Visit: https://mvnrepository.com/artifact/com.google.zxing/core/3.5.3
-- Visit: https://mvnrepository.com/artifact/com.google.zxing/javase/3.5.3
+### 📖 Reading & Decoding
 
-### Step 2: Place JAR files
+- ✅ Decode QR codes from PNG, JPG, and other image formats
+- ✅ Copy decoded text to clipboard with one click
+- ✅ Character count display
+- ✅ Detailed success/error feedback
 
-Place both JAR files in the `lib/` directory:
+### 🖥️ Command-Line Interface
+
+- ✅ CLI tools for automation and scripting
+- ✅ Batch processing support
+- ✅ Legacy menu interface included
+
+---
+
+## 📋 Requirements
+
+- **Java 21 LTS** or higher
+- **Maven** (or Maven Daemon for faster builds)
+- Windows, Linux, or macOS
+
+> **Note:** All dependencies (ZXing 3.5.3) are managed automatically by Maven via `pom.xml`. No manual library downloads needed!
+
+---
+
+## 🚀 Installation
+
+### Quick Start (Windows)
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/anushdighore/QR-Code-Reader.git
+   cd QR-Code-Reader
+   ```
+
+2. **Build the project**
+
+   ```bash
+   build.bat
+   ```
+
+   Maven will automatically download ZXing dependencies and compile everything.
+
+3. **Run the application**
+   ```bash
+   run-jar.bat
+   ```
+   The GUI launches instantly! 🎉
+
+### Alternative: Run with Maven
+
+```bash
+# Build and run in one command
+run-maven.bat
+
+# Or manually
+mvn clean package
+java -jar target/qr-code-reader.jar
+```
+
+### Linux/Mac Setup
+
+1. **Clone and build**
+
+   ```bash
+   git clone https://github.com/anushdighore/QR-Code-Reader.git
+   cd QR-Code-Reader
+   mvn clean package
+   ```
+
+2. **Run the application**
+   ```bash
+   java -jar target/qr-code-reader.jar
+   ```
+
+### Project Structure
 
 ```
-java-qr-project/
-├── lib/
-│   ├── core-3.5.3.jar
-│   └── javase-3.5.3.jar
+QR-Code-Reader/
 ├── src/
-│   ├── QRCodeGenerator.java
-│   ├── QRCodeReader.java
-│   ├── QRCodeApp.java          (legacy CLI)
-│   └── QRCodeAppGUI.java       (Swing GUI)
+│   ├── QRCodeGenerator.java    # QR generation utility
+│   ├── QRCodeReader.java       # QR reading utility
+│   ├── QRCodeApp.java          # Legacy CLI interface
+│   └── QRCodeAppGUI.java       # Modern Swing GUI
+├── target/
+│   ├── classes/                # Compiled bytecode
+│   └── qr-code-reader.jar      # Executable JAR (with dependencies)
+├── pom.xml                     # Maven configuration (manages ZXing)
+├── build.bat                   # Windows build script
+├── run-jar.bat                 # Windows run script (JAR)
+└── run-maven.bat               # Windows run script (Maven)
 ```
 
-### Step 3: Compile the Project
+> **Maven automatically handles:**
+>
+> - ZXing core 3.5.3
+> - ZXing JavaSE 3.5.3
+> - All transitive dependencies
+> - Building fat JAR with maven-shade-plugin
+
+---
+
+## 💻 Usage
+
+### Desktop Application (Recommended)
+
+**Launch the GUI:**
+
+```bash
+# Windows (using JAR)
+run-jar.bat
+
+# Or with Maven
+run-maven.bat
+
+# Or manually
+# Linux/Mac
+java -jar target/qr-code-reader.jar
+```
+
+#### Generate Tab
+
+1. Enter your text or URL in the data field
+2. Choose output file name and location
+3. Set the desired size (100-1000 pixels)
+4. Click **Generate QR Code**
+5. Preview appears automatically
+6. Click **Open Image** to view in default viewer
+
+#### Read Tab
+
+1. Click **Browse** to select a QR code image
+2. Click **Read QR Code**
+3. Decoded text appears in the results area
+4. Click **Copy Text** to copy to clipboard
+
+### Command-Line Interface (Optional)
+
+The application also includes standalone CLI utilities for automation:
+
+**Run from compiled classes:**
+
+```bash
+# Generate a sample QR code
+java -cp target/classes QRCodeGenerator
+
+# Read a QR code image
+java -cp target/classes QRCodeReader sample_qrcode.png
+```
+
+**Or use Maven to run:**
+
+```bash
+# Run the main GUI application
+mvn exec:java -Dexec.mainClass="QRCodeAppGUI"
+```
+
+---
+
+## 📸 Screenshots
+
+### Generate Tab - Live Preview
+
+![Generate Tab](docs/screenshots/generate-tab.png)
+_Enter text, customize settings, and see live preview_
+
+### Read Tab - Decode & Copy
+
+![Read Tab](docs/screenshots/read-tab.png)
+_Decode QR codes and copy text with one click_
+
+> **Note:** Screenshots coming soon! The application features a modern Nimbus UI with split-panel layout, live preview, and intuitive controls.
+
+---
+
+## 🏗️ Development
+
+### Project Structure
+
+```
+QR-Code-Reader/
+├── src/
+│   ├── QRCodeGenerator.java    # QR code generation utility
+│   ├── QRCodeReader.java       # QR code reading utility
+│   ├── QRCodeApp.java          # Legacy CLI menu interface
+│   └── QRCodeAppGUI.java       # Modern Swing desktop application
+├── lib/
+│   ├── core-3.5.3.jar          # ZXing core library
+│   └── javase-3.5.3.jar        # ZXing JavaSE extensions
+├── target/
+│   ├── classes/                # Compiled .class files
+│   └── qr-code-reader.jar      # Executable JAR with dependencies
+├── pom.xml                     # Maven configuration
+├── build.bat                   # Windows build script
+├── run.bat                     # Windows run script
+└── README.md                   # This file
+```
+
+### Key Components
+
+#### `pom.xml` - Maven Configuration
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>3.5.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>javase</artifactId>
+        <version>3.5.3</version>
+    </dependency>
+</dependencies>
+```
+
+Maven automatically downloads and manages all dependencies - no manual setup required!
+
+#### `QRCodeGenerator.java`
+
+- Generates QR codes from text/URLs
+- Saves as PNG with customizable dimensions
+- Returns absolute path of generated file
+- Used by both GUI and CLI
+
+#### `QRCodeReader.java`
+
+- Decodes QR codes from image files
+- Supports PNG, JPG, GIF, and other formats
+- Returns decoded text string
+- Handles errors gracefully
+
+#### `QRCodeAppGUI.java`
+
+- Modern Swing desktop application
+- **Generate Tab:** Split layout with live preview panel
+- **Read Tab:** File browser with copy-to-clipboard
+- Nimbus Look & Feel for professional appearance
+- Integrated error handling and user feedback
+
+#### `QRCodeApp.java`
+
+- Legacy command-line menu system
+- Maintained for backwards compatibility
+- Useful for terminal-based workflows
+
+### Building with Maven
+
+```bash
+# Clean and build (recommended)
+mvn clean package
+
+# Quick build without cleaning
+mvn package
+
+# Build with verbose output
+mvn clean package -X
+```
+
+The `maven-shade-plugin` automatically creates a fat JAR (`target/qr-code-reader.jar`) with all dependencies bundled.
+
+---
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+| Issue                           | Solution                                                      |
+| ------------------------------- | ------------------------------------------------------------- |
+| `Maven build fails`             | Run `mvn clean install -U` to force update dependencies       |
+| `File not found`                | Verify image path exists and is accessible                    |
+| `No QR code found`              | Image may not contain valid QR code or is too blurry          |
+| `UnsupportedOperationException` | Check Java version (requires Java 21+)                        |
+| GUI doesn't launch              | Verify Java: `java -version` and rebuild: `mvn clean package` |
+| `JAVA_HOME not set`             | Set environment variable to your JDK installation path        |
+
+### Maven Troubleshooting
+
+```bash
+# Force refresh dependencies
+mvn clean install -U
+
+# Skip tests if they're failing
+mvn clean package -DskipTests
+
+# Clear Maven cache
+mvn dependency:purge-local-repository
+
+# Check Maven version (need 3.6.0+)
+mvn -version
+```
+
+### Debug Mode
+
+Run with verbose Maven output:
+
+```bash
+mvn clean package -X
+```
+
+Run application with logging:
+
+```bash
+java -Djava.util.logging.level=FINE -jar target/qr-code-reader.jar
+```
+
+### Platform-Specific Notes
 
 **Windows:**
 
-```bash
-javac -cp "lib\*" -d . src\*.java
-```
+- Use `build.bat` and `run-jar.bat` for convenience
+- PowerShell: May need `.\build.bat` instead of `build.bat`
+- Maven Daemon (mvnd) recommended for faster builds
 
 **Linux/Mac:**
 
-```bash
-javac -cp "lib/*" -d . src/*.java
-```
+- Make scripts executable: `chmod +x build.bat run-jar.bat`
+- Or use Maven directly: `mvn clean package && java -jar target/qr-code-reader.jar`
 
-### Step 4: Launch the Desktop App
+---
 
-**Windows:**
+## 🤝 Contributing
 
-```bash
-java -cp ".;lib\*" QRCodeAppGUI
-```
+Contributions are welcome! Here's how you can help:
 
-**Linux/Mac:**
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
 
-```bash
-java -cp ".:lib/*" QRCodeAppGUI
-```
+### Ideas for Contributions
 
-> 💡 Tip: On Windows you can simply double-click `run.bat` to compile (after the first run) and launch the GUI.
+- [ ] Add more QR code customization options (colors, logos)
+- [ ] Implement batch processing for multiple QR codes
+- [ ] Add QR code history/favorites
+- [ ] Export to different formats (SVG, PDF)
+- [ ] Add QR code validation and error correction levels
+- [ ] Implement drag-and-drop for image loading
+- [ ] Add internationalization (i18n) support
 
-## Quick Test
+---
 
-### Generate a QR Code:
+## 📄 License
 
-**Windows:**
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
-```bash
-java -cp ".;lib\*" QRCodeGenerator
-```
+### Third-Party Libraries
 
-**Linux/Mac:**
+- **ZXing** (Zebra Crossing) - Apache License 2.0
+  - Copyright © ZXing Authors
+  - https://github.com/zxing/zxing
 
-```bash
-java -cp ".:lib/*" QRCodeGenerator
-```
+---
 
-This will create `sample_qrcode.png` with "https://github.com" encoded.
+## 👨‍💻 Author
 
-### Read a QR Code:
+**Anush Dighore**
 
-**Windows:**
+- GitHub: [@anushdighore](https://github.com/anushdighore)
+- Repository: [QR-Code-Reader](https://github.com/anushdighore/QR-Code-Reader)
 
-```bash
-java -cp ".;lib\*" QRCodeReader
-```
+---
 
-**Linux/Mac:**
+## 🎓 Acknowledgments
 
-```bash
-java -cp ".:lib/*" QRCodeReader
-```
+- Created as part of a Capstone Project
+- Built with [ZXing](https://github.com/zxing/zxing) library
+- Inspired by the need for a simple, offline QR code tool
+- Special thanks to the open-source community
 
-The command-line tools are useful for quick automation or testing, while the GUI offers a user-friendly experience.
+---
 
-## Usage
+## 📊 Project Stats
 
-### Desktop (Swing) Application
+![GitHub repo size](https://img.shields.io/github/repo-size/anushdighore/QR-Code-Reader?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/anushdighore/QR-Code-Reader?style=flat-square)
+![GitHub stars](https://img.shields.io/github/stars/anushdighore/QR-Code-Reader?style=social)
 
-1. **Generate Tab**
+---
 
-- Enter text/URL, choose the output file (PNG) and size (100–1000 px)
-- Click **Generate QR Code**
-- The status bar and a dialog confirm where the file was saved
+<div align="center">
 
-2. **Read Tab**
+**Made with ❤️ using Java and Swing**
 
-- Pick an existing QR image (PNG)
-- Click **Read QR Code**
-- Decoded text appears instantly in the results panel
+**[⬆ Back to Top](#-qr-code-studio)**
 
-### Command-Line Utilities (Optional)
-
-- `QRCodeGenerator` – quick generation for scripts and automation
-- `QRCodeReader` – decode QR images from the terminal
-- `QRCodeApp` – legacy text-based menu retained for reference
-
-## Code Structure
-
-### QRCodeGenerator.java
-
-- Generates QR codes from text
-- Saves as PNG images
-- Customizable size
-
-### QRCodeReader.java
-
-- Reads QR codes from image files
-- Supports PNG, JPG, and other image formats
-- Decodes and returns the text content
-
-### QRCodeApp.java
-
-- Legacy command-line menu (still available for terminal use)
-
-### QRCodeAppGUI.java
-
-- Swing desktop application (tabs for Generate/Read)
-- Integrated file pickers, validation, and status messaging
-- Uses the same generator/reader utilities under the hood
-
-## Troubleshooting
-
-### ClassNotFoundException
-
-Make sure the JAR files are in the `lib/` directory and you're using the correct classpath.
-
-### File not found
-
-Ensure the image path is correct and the file exists.
-
-### No QR code found
-
-The image might not contain a valid QR code, or it might be too blurry.
-
-## License
-
-This project uses ZXing (Apache License 2.0)
-
-## Author
-
-Created for Capstone Project
+</div>
