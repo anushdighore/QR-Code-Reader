@@ -1,5 +1,10 @@
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
+import factory.CodeGeneratorFactory;
+import factory.CodeReaderFactory;
+import model.CodeFormat;
+import service.ICodeGenerator;
+import service.ICodeReader;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,22 +28,28 @@ import java.nio.file.Path;
 public class QRCodeAppGUI extends JFrame {
 
     private final JTextArea inputDataArea = new JTextArea(5, 30);
+    private final JComboBox<CodeFormat> formatComboBox = new JComboBox<>(CodeFormat.values());
     private final JTextField outputPathField = new JTextField("qrcode.png", 25);
     private final JSpinner sizeSpinner = new JSpinner(new SpinnerNumberModel(300, 100, 1000, 50));
     private final JLabel generateStatusLabel = new JLabel(" ");
-    private final JLabel previewLabel = new JLabel("No QR code generated yet", SwingConstants.CENTER);
+    private final JLabel previewLabel = new JLabel("No code generated yet", SwingConstants.CENTER);
     private final JButton openOutputButton = new JButton("Open Image");
     private Path lastGeneratedPath;
 
     private final JTextField inputFileField = new JTextField(25);
     private final JTextArea decodedTextArea = new JTextArea(6, 30);
     private final JLabel readStatusLabel = new JLabel(" ");
+    private final JLabel detectedFormatLabel = new JLabel(" ");
 
     public QRCodeAppGUI() {
-        super("QR Code Studio");
+        super("QR Code & Barcode Studio");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        
+        // Add listener to update default filename when format changes
+        formatComboBox.addActionListener(e -> updateDefaultFilename());
 
+        
         previewLabel.setOpaque(true);
         previewLabel.setBackground(new Color(250, 250, 250));
         previewLabel.setBorder(BorderFactory.createDashedBorder(new Color(200, 200, 200), 3, 5));
@@ -79,7 +90,7 @@ public class QRCodeAppGUI extends JFrame {
 
         int row = 0;
 
-        JLabel intro = new JLabel("Enter text or URL to encode.");
+        JLabel intro = new JLabel("Select format and enter data to encode.");
         intro.setFont(intro.getFont().deriveFont(Font.BOLD, intro.getFont().getSize() + 1f));
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -88,6 +99,16 @@ public class QRCodeAppGUI extends JFrame {
 
         gbc.gridwidth = 1;
         gbc.gridy = row;
+        formPanel.add(new JLabel("Format"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        formatComboBox.setToolTipText("Select the code format to generate");
+        formPanel.add(formatComboBox, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
         formPanel.add(new JLabel("Data"), gbc);
 
         inputDataArea.setLineWrap(true);
@@ -163,7 +184,7 @@ public class QRCodeAppGUI extends JFrame {
         JPanel previewPanel = new JPanel(new BorderLayout());
         previewPanel.setOpaque(false);
         previewPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(210, 210, 210)),
-                "QR Code Preview", TitledBorder.CENTER, TitledBorder.TOP));
+                "Code Preview", TitledBorder.CENTER, TitledBorder.TOP));
         previewPanel.add(previewLabel, BorderLayout.CENTER);
 
         JLabel hint = new JLabel("Preview updates after generation", SwingConstants.CENTER);
@@ -188,7 +209,7 @@ public class QRCodeAppGUI extends JFrame {
 
         int row = 0;
 
-        JLabel intro = new JLabel("Select an image to decode its QR Code.");
+        JLabel intro = new JLabel("Select an image to decode QR Code or Barcode.");
         intro.setFont(intro.getFont().deriveFont(Font.BOLD, intro.getFont().getSize() + 1f));
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -210,7 +231,7 @@ public class QRCodeAppGUI extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         buttonPanel.setOpaque(false);
-        JButton readButton = new JButton("Read QR Code");
+        JButton readButton = new JButton("Read Code");
         readButton.addActionListener(e -> handleRead());
         JButton copyButton = new JButton("Copy Text");
         copyButton.addActionListener(e -> copyDecodedText());
@@ -246,6 +267,11 @@ public class QRCodeAppGUI extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         formPanel.add(readStatusLabel, gbc);
 
+        detectedFormatLabel.setForeground(new Color(0, 102, 153));
+        detectedFormatLabel.setFont(detectedFormatLabel.getFont().deriveFont(Font.ITALIC));
+        gbc.gridy = ++row;
+        formPanel.add(detectedFormatLabel, gbc);
+
         panel.add(formPanel, BorderLayout.CENTER);
         return panel;
     }
@@ -262,33 +288,49 @@ public class QRCodeAppGUI extends JFrame {
             return;
         }
 
+        CodeFormat selectedFormat = (CodeFormat) formatComboBox.getSelectedItem();
+        if (selectedFormat == null) {
+            selectedFormat = CodeFormat.QR_CODE;
+        }
+
         String filename = outputPathField.getText().trim();
         if (filename.isEmpty()) {
-            filename = "qrcode.png";
+            filename = selectedFormat.getDefaultFileName();
             outputPathField.setText(filename);
         }
 
         int size = (int) sizeSpinner.getValue();
 
         try {
-            Path savedPath = QRCodeGenerator.generateQRCode(data, filename, size, size);
+            ICodeGenerator generator = CodeGeneratorFactory.createGenerator(selectedFormat);
+            
+            if (!generator.validateData(data)) {
+                showGenerateError("Invalid data for " + selectedFormat.getDisplayName() + 
+                                " format. Please check the format requirements.");
+                return;
+            }
+            
+            Path savedPath = generator.generateCode(data, filename, size, size);
             generateStatusLabel.setForeground(new Color(0, 102, 0));
             generateStatusLabel.setText("Saved to: " + savedPath);
             lastGeneratedPath = savedPath;
             updatePreview(savedPath);
             openOutputButton.setEnabled(canOpenGeneratedFile());
             JOptionPane.showMessageDialog(this,
-                    "QR Code generated successfully!\nSaved to: " + savedPath,
+                    selectedFormat.getDisplayName() + " generated successfully!\nSaved to: " + savedPath,
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
         } catch (WriterException | IOException e) {
-            showGenerateError("Failed to generate QR Code: " + e.getMessage());
+            showGenerateError("Failed to generate " + selectedFormat.getDisplayName() + ": " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            showGenerateError(e.getMessage());
         }
     }
 
     private void handleRead() {
         readStatusLabel.setText(" ");
         readStatusLabel.setForeground(new Color(0, 102, 0));
+        detectedFormatLabel.setText(" ");
         decodedTextArea.setText("");
 
         String filePath = inputFileField.getText().trim();
@@ -304,14 +346,23 @@ public class QRCodeAppGUI extends JFrame {
         }
 
         try {
-            String decoded = QRCodeReader.readQRCode(filePath);
+            ICodeReader reader = CodeReaderFactory.createMultiFormatReader();
+            String decoded = reader.readCode(filePath);
+            
+            // Try to detect the format by reading the result metadata
+            String formatInfo = detectFormatFromFile(filePath);
+            
             decodedTextArea.setText(decoded);
             readStatusLabel.setForeground(new Color(0, 102, 0));
-            readStatusLabel.setText("✓ QR Code decoded successfully (" + decoded.length() + " characters)");
+            readStatusLabel.setText("✓ Code decoded successfully (" + decoded.length() + " characters)");
+            
+            if (formatInfo != null && !formatInfo.isEmpty()) {
+                detectedFormatLabel.setText("Detected format: " + formatInfo);
+            }
         } catch (IOException e) {
             showReadError("Unable to read file: " + e.getMessage());
         } catch (NotFoundException e) {
-            showReadError("No QR code found in the selected image.");
+            showReadError("No QR code or barcode found in the selected image.");
         }
     }
 
@@ -401,11 +452,11 @@ public class QRCodeAppGUI extends JFrame {
         header.setBorder(new EmptyBorder(18, 24, 12, 24));
         header.setOpaque(false);
 
-        JLabel title = new JLabel("QR Code Studio");
+        JLabel title = new JLabel("QR Code & Barcode Studio");
         title.setFont(title.getFont().deriveFont(Font.BOLD, title.getFont().getSize() + 6f));
         header.add(title, BorderLayout.WEST);
 
-        JLabel subtitle = new JLabel("Generate and decode QR codes in one place");
+        JLabel subtitle = new JLabel("Generate and decode QR codes and barcodes in one place");
         subtitle.setForeground(new Color(110, 110, 110));
         header.add(subtitle, BorderLayout.SOUTH);
 
@@ -439,7 +490,46 @@ public class QRCodeAppGUI extends JFrame {
 
     private void clearPreview() {
         previewLabel.setIcon(null);
-        previewLabel.setText("No QR code generated yet");
+        previewLabel.setText("No code generated yet");
+    }
+    
+    /**
+     * Update the default filename based on selected format
+     */
+    private void updateDefaultFilename() {
+        CodeFormat selectedFormat = (CodeFormat) formatComboBox.getSelectedItem();
+        if (selectedFormat != null) {
+            String currentPath = outputPathField.getText().trim();
+            // Only update if it's still the default or empty
+            if (currentPath.isEmpty() || currentPath.matches(".*\\.(png)$")) {
+                outputPathField.setText(selectedFormat.getDefaultFileName());
+            }
+        }
+    }
+    
+    /**
+     * Detect the barcode format from the image file
+     */
+    private String detectFormatFromFile(String filePath) {
+        try {
+            File file = new File(filePath);
+            BufferedImage bufferedImage = ImageIO.read(file);
+            
+            if (bufferedImage == null) {
+                return null;
+            }
+
+            com.google.zxing.BinaryBitmap binaryBitmap = new com.google.zxing.BinaryBitmap(
+                    new com.google.zxing.common.HybridBinarizer(
+                            new com.google.zxing.client.j2se.BufferedImageLuminanceSource(bufferedImage)));
+
+            com.google.zxing.MultiFormatReader reader = new com.google.zxing.MultiFormatReader();
+            com.google.zxing.Result result = reader.decode(binaryBitmap);
+            
+            return result.getBarcodeFormat().toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private boolean canOpenGeneratedFile() {

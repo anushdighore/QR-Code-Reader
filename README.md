@@ -1,15 +1,15 @@
 <div align="center">
 
-# 🎯 QR Code Studio
+# 🎯 QR Code & Barcode Studio
 
-### Modern Desktop Application for QR Code Generation & Reading
+### Modern Desktop Application for QR Code & Barcode Generation & Reading
 
 [![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
 [![ZXing](https://img.shields.io/badge/ZXing-3.5.3-blue?style=for-the-badge)](https://github.com/zxing/zxing)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Mac-lightgrey?style=for-the-badge)]()
 
-**A powerful, user-friendly desktop application built with Java Swing for generating and decoding QR codes with live preview and modern UI.**
+**A powerful, user-friendly desktop application built with Java Swing for generating and decoding QR codes and barcodes with live preview, modern UI, and industry-standard OOP architecture.**
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Screenshots](#-screenshots) • [Development](#-development)
 
@@ -29,15 +29,25 @@
 
 ### 🚀 Generation Capabilities
 
-- ✅ Generate QR codes from any text or URL
+- ✅ Generate **QR codes** from any text or URL
+- ✅ Generate **barcodes** in multiple formats:
+  - Code 128 (general-purpose, high-density)
+  - Code 39 (industrial, inventory)
+  - EAN-13 (retail products)
+  - EAN-8 (small retail products)
+  - UPC-A (North American retail)
+  - UPC-E (compressed UPC)
 - ✅ Customizable size (100-1000 pixels)
 - ✅ PNG output with custom file names
+- ✅ Format-specific data validation
 - ✅ Instant visual preview after generation
 - ✅ Open image directly in default viewer
 
 ### 📖 Reading & Decoding
 
-- ✅ Decode QR codes from PNG, JPG, and other image formats
+- ✅ **Multi-format detection** - Automatically detects QR codes and barcodes
+- ✅ Decode from PNG, JPG, and other image formats
+- ✅ Display detected format type
 - ✅ Copy decoded text to clipboard with one click
 - ✅ Character count display
 - ✅ Detailed success/error feedback
@@ -47,6 +57,18 @@
 - ✅ CLI tools for automation and scripting
 - ✅ Batch processing support
 - ✅ Legacy menu interface included
+
+### 🏛️ Industry-Standard Architecture
+
+- ✅ **SOLID Principles** - Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- ✅ **Design Patterns**:
+  - Factory Pattern for object creation
+  - Template Method for code generation/reading workflows
+  - Facade Pattern for backward compatibility
+  - Strategy Pattern for format-specific implementations
+- ✅ **Clean Code** - Well-documented, maintainable, and extensible
+- ✅ **Package Structure** - Organized by responsibility (model, service, factory)
+- ✅ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed design documentation
 
 ---
 
@@ -116,14 +138,27 @@ java -jar target/qr-code-reader.jar
 ```
 QR-Code-Reader/
 ├── src/
-│   ├── QRCodeGenerator.java    # QR generation utility
-│   ├── QRCodeReader.java       # QR reading utility
+│   ├── model/
+│   │   └── CodeFormat.java         # Enum for supported formats
+│   ├── service/
+│   │   ├── ICodeGenerator.java     # Generator interface
+│   │   ├── ICodeReader.java        # Reader interface
+│   │   ├── AbstractCodeGenerator.java
+│   │   ├── AbstractCodeReader.java
+│   │   └── impl/                   # Concrete implementations
+│   ├── factory/
+│   │   ├── CodeGeneratorFactory.java
+│   │   └── CodeReaderFactory.java
+│   ├── QRCodeGenerator.java    # Facade for backward compatibility
+│   ├── QRCodeReader.java       # Facade for backward compatibility
 │   ├── QRCodeApp.java          # Legacy CLI interface
-│   └── QRCodeAppGUI.java       # Modern Swing GUI
+│   ├── QRCodeAppGUI.java       # Modern Swing GUI
+│   └── BarcodeExample.java     # Usage examples
 ├── target/
 │   ├── classes/                # Compiled bytecode
 │   └── qr-code-reader.jar      # Executable JAR (with dependencies)
 ├── pom.xml                     # Maven configuration (manages ZXing)
+├── ARCHITECTURE.md             # Detailed architecture documentation
 ├── build.bat                   # Windows build script
 ├── run-jar.bat                 # Windows run script (JAR)
 └── run-maven.bat               # Windows run script (Maven)

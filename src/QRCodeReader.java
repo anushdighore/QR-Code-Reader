@@ -1,41 +1,30 @@
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
+import factory.CodeReaderFactory;
+import service.ICodeReader;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 /**
  * QR Code Reader using ZXing library
+ * This class now acts as a Facade for the new OOP architecture
+ * Maintains backward compatibility with existing code
  */
 public class QRCodeReader {
 
     /**
      * Read and decode QR Code from an image file
+     * Now supports multiple formats including barcodes
      * 
-     * @param filePath Path to the QR code image file
-     * @return Decoded text from the QR code
-     * @throws IOException
-     * @throws NotFoundException
+     * @param filePath Path to the QR code/barcode image file
+     * @return Decoded text from the code
+     * @throws IOException       If file reading fails
+     * @throws NotFoundException If no code is found
      */
     public static String readQRCode(String filePath) throws IOException, NotFoundException {
-        
-        File file = new File(filePath);
-        BufferedImage bufferedImage = ImageIO.read(file);
-
-        BinaryBitmap binaryBitmap = new BinaryBitmap(
-                new HybridBinarizer(
-                        new BufferedImageLuminanceSource(bufferedImage)));
-
-        MultiFormatReader reader = new MultiFormatReader();
-        Result result = reader.decode(binaryBitmap);
-
-        return result.getText();
+        // Use the new OOP architecture via factory pattern
+        // Using multi-format reader to support both QR codes and barcodes
+        ICodeReader reader = CodeReaderFactory.createMultiFormatReader();
+        return reader.readCode(filePath);
     }
 
     /**
